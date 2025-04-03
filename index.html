@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sneaker Inventory</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="lightbox" class="lightbox">
+        <span class="close-btn">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <div class="lightbox-caption"></div>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>SNEAKER INVENTORY</h1>
+                <div class="language-selector">
+                    <button id="lang-en" class="lang-btn active">EN</button>
+                    <button id="lang-pt" class="lang-btn">PT</button>
+                </div>
+            </div>
+            <div class="filters">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search" placeholder="Search sneakers...">
+                </div>
+                
+                <div class="sort-controls">
+                    <button id="sort-default" class="sort-btn active">
+                        <i class="fas fa-bars"></i> Default
+                    </button>
+                    <button id="sort-price-asc" class="sort-btn">
+                        <i class="fas fa-sort-amount-up"></i> Low-High
+                    </button>
+                    <button id="sort-price-desc" class="sort-btn">
+                        <i class="fas fa-sort-amount-down"></i> High-Low
+                    </button>
+                </div>
+                
+                <div class="size-filter-container">
+                    <button id="size-filter-toggle" class="filter-toggle-btn">
+                        <i class="fas fa-filter"></i> Filter by Size
+                    </button>
+                    <div class="size-filter-panel" id="size-filter-panel">
+                        <div class="size-group">
+                            <h4>EU Footwear</h4>
+                            <div class="size-options">
+                                <button class="size-option" data-size="34">34</button>
+                                <button class="size-option" data-size="35">35</button>
+                                <button class="size-option" data-size="35.5">35.5</button>
+                                <button class="size-option" data-size="36">36</button>
+                                <button class="size-option" data-size="36 2/3">36 2/3</button>
+                                <button class="size-option" data-size="37">37</button>
+                                <button class="size-option" data-size="37 1/3">37 1/3</button>
+                                <button class="size-option" data-size="38">38</button>
+                                <button class="size-option" data-size="38 2/3">38 2/3</button>
+                                <button class="size-option" data-size="38.5">38.5</button>
+                                <button class="size-option" data-size="39 1/3">39 1/3</button>
+                                <button class="size-option" data-size="39.5">39.5</button>
+                                <button class="size-option" data-size="40">40</button>
+                                <button class="size-option" data-size="40.5">40.5</button>
+                                <button class="size-option" data-size="41">41</button>
+                                <button class="size-option" data-size="41 1/3">41 1/3</button>
+                                <button class="size-option" data-size="42">42</button>
+                                <button class="size-option" data-size="42 2/3">42 2/3</button>
+                                <button class="size-option" data-size="42.5">42.5</button>
+                                <button class="size-option" data-size="43">43</button>
+                                <button class="size-option" data-size="43 1/3">43 1/3</button>
+                                <button class="size-option" data-size="44">44</button>
+                                <button class="size-option" data-size="44 2/3">44 2/3</button>
+                                <button class="size-option" data-size="45">45</button>
+                                <button class="size-option" data-size="45 1/3">45 1/3</button>
+                                <button class="size-option" data-size="46">46</button>
+                            </div>
+                        </div>
+                        <div class="size-group">
+                            <h4>Clothing</h4>
+                            <div class="size-options">
+                                <div class="size-option" data-size="XS">XS</div>
+                                <div class="size-option" data-size="S">S</div>
+                                <div class="size-option" data-size="M">M</div>
+                                <div class="size-option" data-size="L">L</div>
+                                <div class="size-option" data-size="XL">XL</div>
+                                <div class="size-option" data-size="XXL">XXL</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="selected-sizes" id="selected-sizes"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="loading">
+            <div class="spinner"></div>
+            Loading inventory...
+        </div>
+        <div id="shoe-grid"></div>
+        <div id="no-results">
+            <i class="far fa-frown"></i>
+            <p>No matching sneakers found</p>
+            <button id="reset-filters">Reset Filters</button>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© <span id="year"></span> Sneaker Inventory</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
