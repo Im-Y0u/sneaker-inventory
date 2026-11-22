@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Live sneaker & clothing inventory — search, filter by size and sort by price.">
+    <meta name="theme-color" content="#f0e9db">
+    <title>Sneaker Inventory</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2335291b'/%3E%3Cpath d='M10 40c0-4 3-6 8-8 4-2 6-4 8-8 2 6 9 8 16 9 6 1 12 2 12 7v4H10z' fill='%23fbf7ee'/%3E%3Cpath d='M10 44h44v3H10z' fill='%23c05e2a'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://docs.google.com">
+</head>
+<body>
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer" hidden>
+        <button class="lightbox-close" aria-label="Close">&times;</button>
+        <div class="lightbox-stage">
+            <img id="lightbox-img" alt="">
+        </div>
+        <div class="lightbox-caption"></div>
+    </div>
+
+    <header class="site-header">
+        <div class="container">
+            <div class="header-top">
+                <h1 class="brand">SNEAKER<em>INVENTORY</em></h1>
+                <div class="language-selector" role="group" aria-label="Language">
+                    <button id="lang-en" class="lang-btn active" type="button">EN</button>
+                    <button id="lang-pt" class="lang-btn" type="button">PT</button>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-box">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                    <input type="search" id="search" placeholder="Search by name or SKU..." autocomplete="off">
+                </div>
+
+                <div class="sort-controls" role="group" aria-label="Sort">
+                    <button id="sort-default" class="sort-btn active" type="button">Default</button>
+                    <button id="sort-price-asc" class="sort-btn" type="button">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                        Low-High
+                    </button>
+                    <button id="sort-price-desc" class="sort-btn" type="button">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                        High-Low
+                    </button>
+                </div>
+
+                <div class="size-filter-container">
+                    <button id="size-filter-toggle" class="filter-toggle-btn" type="button" aria-haspopup="true" aria-expanded="false">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg>
+                        <span>Filter by Size</span>
+                        <span id="filter-count" class="filter-count" hidden></span>
+                    </button>
+                    <div class="size-filter-panel" id="size-filter-panel">
+                        <p class="panel-title">Filter by Size</p>
+                        <div class="size-group">
+                            <h4>EU Footwear</h4>
+                            <div class="size-options">
+                                <button class="size-option" data-size="34" type="button">34</button>
+                                <button class="size-option" data-size="35" type="button">35</button>
+                                <button class="size-option" data-size="35.5" type="button">35.5</button>
+                                <button class="size-option" data-size="36" type="button">36</button>
+                                <button class="size-option" data-size="36 2/3" type="button">36 2/3</button>
+                                <button class="size-option" data-size="37" type="button">37</button>
+                                <button class="size-option" data-size="37 1/3" type="button">37 1/3</button>
+                                <button class="size-option" data-size="38" type="button">38</button>
+                                <button class="size-option" data-size="38 2/3" type="button">38 2/3</button>
+                                <button class="size-option" data-size="38.5" type="button">38.5</button>
+                                <button class="size-option" data-size="39 1/3" type="button">39 1/3</button>
+                                <button class="size-option" data-size="39.5" type="button">39.5</button>
+                                <button class="size-option" data-size="40" type="button">40</button>
+                                <button class="size-option" data-size="40.5" type="button">40.5</button>
+                                <button class="size-option" data-size="41" type="button">41</button>
+                                <button class="size-option" data-size="41 1/3" type="button">41 1/3</button>
+                                <button class="size-option" data-size="42" type="button">42</button>
+                                <button class="size-option" data-size="42 2/3" type="button">42 2/3</button>
+                                <button class="size-option" data-size="42.5" type="button">42.5</button>
+                                <button class="size-option" data-size="43" type="button">43</button>
+                                <button class="size-option" data-size="43 1/3" type="button">43 1/3</button>
+                                <button class="size-option" data-size="44" type="button">44</button>
+                                <button class="size-option" data-size="44 2/3" type="button">44 2/3</button>
+                                <button class="size-option" data-size="45" type="button">45</button>
+                                <button class="size-option" data-size="45 1/3" type="button">45 1/3</button>
+                                <button class="size-option" data-size="46" type="button">46</button>
+                            </div>
+                        </div>
+                        <div class="size-group">
+                            <h4>Clothing</h4>
+                            <div class="size-options">
+                                <button class="size-option" data-size="XS" type="button">XS</button>
+                                <button class="size-option" data-size="S" type="button">S</button>
+                                <button class="size-option" data-size="M" type="button">M</button>
+                                <button class="size-option" data-size="L" type="button">L</button>
+                                <button class="size-option" data-size="XL" type="button">XL</button>
+                                <button class="size-option" data-size="XXL" type="button">XXL</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-bar">
+                <div class="selected-sizes" id="selected-sizes"></div>
+                <span id="results-count" class="results-count" hidden></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="loading" class="skeleton-grid" aria-label="Loading inventory">
+            <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk sk-line w70"></div><div class="sk sk-line w40"></div><div class="sk sk-line w50"></div></div>
+            <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40"></div><div class="sk sk-line w55"></div></div>
+            <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk sk-line w75"></div><div class="sk sk-line w35"></div><div class="sk sk-line w45"></div></div>
+            <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk sk-line w65"></div><div class="sk sk-line w45"></div><div class="sk sk-line w50"></div></div>
+            <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk sk-line w70"></div><div class="sk sk-line w40"></div><div class="sk sk-line w55"></div></div>
+            <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40"></div><div class="sk sk-line w45"></div></div>
+        </div>
+        <div id="shoe-grid" class="shoe-grid"></div>
+        <div id="no-results" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 9.5h.01M15.5 9.5h.01M8 14.5s1.5 1.5 4 1.5 4-1.5 4-1.5"/></svg>
+            <p>No matching sneakers found</p>
+            <button id="reset-filters" type="button">Reset Filters</button>
+        </div>
+        <div id="error-state" hidden>
+            <p id="error-message">Error loading inventory. Please try again later.</p>
+            <button id="retry-btn" type="button">Retry</button>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; <span id="year"></span> Sneaker Inventory</p>
+            <p>Prices do not include shipping costs</p>
+            <p class="fee-note">Prices shown include a 4% fee (minimum &euro;5 increase)</p>
+        </div>
+    </footer>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
