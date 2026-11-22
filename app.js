@@ -32,8 +32,15 @@ document.addEventListener('DOMContentLoaded', function () {
             filterSize: 'Filter by Size',
             footwear: 'EU Footwear',
             clothing: 'Clothing',
+            accessories: 'Accessories',
+            sectionSneakers: 'Sneakers',
+            sectionClothing: 'Clothing',
+            sectionAccessories: 'Accessories',
+            tagSneaker: 'Sneaker',
+            tagClothing: 'Clothing',
+            tagAccessory: 'Accessory',
             availableSizes: 'Available sizes:',
-            noResults: 'No matching sneakers found',
+            noResults: 'No matching items found',
             error: 'Error loading inventory. Please try again later and contact the owner.',
             retry: 'Retry',
             reset: 'Reset Filters',
@@ -51,8 +58,15 @@ document.addEventListener('DOMContentLoaded', function () {
             filterSize: 'Filtrar por Tamanho',
             footwear: 'Cal\u00e7ado EU',
             clothing: 'Roupa',
+            accessories: 'Acess\u00f3rios',
+            sectionSneakers: 'Cal\u00e7ado',
+            sectionClothing: 'Roupa',
+            sectionAccessories: 'Acess\u00f3rios',
+            tagSneaker: 'Cal\u00e7ado',
+            tagClothing: 'Roupa',
+            tagAccessory: 'Acess\u00f3rio',
             availableSizes: 'Tamanhos dispon\u00edveis:',
-            noResults: 'Nenhum t\u00eanis encontrado',
+            noResults: 'Nenhum artigo encontrado',
             error: 'Erro ao carregar estoque. Por favor tente novamente mais tarde e contacte o dono.',
             retry: 'Tentar novamente',
             reset: 'Redefinir Filtros',
@@ -85,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const els = {
         search: $('#search'),
         loading: $('#loading'),
-        grid: $('#shoe-grid'),
+        grid: $('#inventory'),
         noResults: $('#no-results'),
         errorState: $('#error-state'),
         errorMessage: $('#error-message'),
@@ -259,8 +273,41 @@ document.addEventListener('DOMContentLoaded', function () {
             if (existing) existing.quantity += 1;
             else grouped[groupKey].sizes.push({ size: size, quantity: 1 });
         });
-        return Object.values(grouped);
+        const list = Object.values(grouped);
+        list.forEach(g => { g.category = categorize(g.sizes, g.name); });
+        return list;
     }
+
+    /* ---------- Category rules ----------
+       accessory : size is "-" (also "OS" / "one size" / empty),
+                   OR the name matches the override list below
+       clothing  : letter sizes only (XS, S, M, L, XL, XXL, ...)
+       sneaker   : everything else (numeric EU sizes, fractions, ...) */
+    const CLOTHING_RE = /^(xs|s|m|l|xl|xxl|xxxl|2xl|3xl|4xl)$/;
+    const ACCESSORY_RE = /^(-|os|one size)$/;
+
+    // Force these names into Accessories regardless of their size value
+    // (matched case-insensitively, "contains")
+    const ACCESSORY_NAME_HINTS = ['swarovski', 'diesel b-1dr belt'];
+
+    function nameIsAccessory(name) {
+        const n = String(name).toLowerCase();
+        return ACCESSORY_NAME_HINTS.some(hint => n.includes(hint));
+    }
+
+    function categorize(sizes, name) {
+        if (name && nameIsAccessory(name)) return 'accessory';
+        const norm = sizes.map(s => normalizeSize(s.size));
+        if (norm.length && norm.every(s => ACCESSORY_RE.test(s))) return 'accessory';
+        if (norm.length && norm.every(s => CLOTHING_RE.test(s))) return 'clothing';
+        return 'sneaker';
+    }
+
+    // normalizeSize is declared further down (FILTERING section) —
+    // function declarations below are hoisted per-scope, but this is a const
+    // arrow, so categorize() must only run after it is defined (it does:
+    // groupShoes is called from applyData which runs in init(), after full
+    // script evaluation).
 
     function formatPrice(price) {
         if (!price) return 'N/A';
@@ -329,47 +376,104 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function displayShoes(shoes) {
         els.grid.innerHTML = '';
-        els.noResults.hidden = shoes.length > 0;
 
+        // Partition into the three categories, keeping the global sort order
+        const buckets = { sneaker: [], clothing: [], accessory: [] };
+        shoes.forEach(s => { if (buckets[s.category]) buckets[s.category].push(s); });
+
+        els.noResults.hidden = shoes.length > 0;
         if (shoes.length === 0) return;
 
         const frag = document.createDocumentFragment();
-
-        shoes.forEach((shoe, idx) => {
-            const card = document.createElement('div');
-            card.className = 'shoe-card';
-            card.style.animationDelay = `${Math.min(idx * 30, 300)}ms`;
-
-            const imgContainer = document.createElement('div');
-            imgContainer.className = 'shoe-image-container';
-            const img = document.createElement('img');
-            img.className = 'shoe-image';
-            attachImage(img, shoe.image, shoe.name);
-            imgContainer.appendChild(img);
-
-            const info = document.createElement('div');
-            info.className = 'shoe-info';
-            info.innerHTML =
-                `<h2>${escapeHtml(shoe.name)}</h2>` +
-                `<p class="shoe-sku">SKU: ${escapeHtml(shoe.sku)}</p>` +
-                `<div class="price">${escapeHtml(shoe.price)}</div>` +
-                `<div class="sizes-container">` +
-                `<span class="sizes-label">${t('availableSizes')}</span>` +
-                shoe.sizes.map(s =>
-                    `<span class="size-badge">${escapeHtml(s.size)}` +
-                    (s.quantity > 1 ? ` <span class="size-quantity">(${s.quantity})</span>` : '') +
-                    `</span>`
-                ).join('') +
-                `</div>`;
-
-            card.appendChild(imgContainer);
-            card.appendChild(info);
-            frag.appendChild(card);
-
-            imgContainer.addEventListener('click', () => openLightbox(shoe));
+        let idx = 0;
+        CATEGORY_ORDER.forEach(cat => {
+            if (!buckets[cat].length) return;
+            frag.appendChild(buildSection(cat, buckets[cat], idx));
+            idx += buckets[cat].length;
         });
-
         els.grid.appendChild(frag);
+    }
+
+    const CATEGORY_ORDER = ['sneaker', 'clothing', 'accessory'];
+    const CATEGORY_TITLE_KEY = {
+        sneaker: 'sectionSneakers', clothing: 'sectionClothing', accessory: 'sectionAccessories'
+    };
+    const CATEGORY_TAG_KEY = {
+        sneaker: 'tagSneaker', clothing: 'tagClothing', accessory: 'tagAccessory'
+    };
+    const CATEGORY_ICONS = {
+        sneaker: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 16.5c0-1.5 1-2.3 2.8-3 1.6-.7 2.4-1.5 3-3 .9 2.3 3.6 3.1 6.4 3.5 2.4.4 4.8.8 4.8 2.7v1.6h-17z"/><path d="M2.5 18.3h17"/><path d="M9.5 11.5l2.5-1"/></svg>',
+        clothing: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3l3 1.5L15 3l5.5 3.5-2 3.5-2.5-1.3V21h-8V8.7L5.5 10l-2-3.5z"/></svg>',
+        accessory: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.3l-7.3 7.3a2 2 0 0 1-2.8 0l-7-7V4h9.6l7.5 7.5a1.3 1.3 0 0 1 0 1.8z"/><circle cx="7.8" cy="7.8" r="1.1"/></svg>'
+    };
+
+    function buildSection(cat, items, startIdx) {
+        const section = document.createElement('section');
+        section.className = 'category-section';
+        section.dataset.category = cat;
+
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.innerHTML =
+            `<span class="category-icon">${CATEGORY_ICONS[cat]}</span>` +
+            `<h2 class="category-title">${t(CATEGORY_TITLE_KEY[cat])}</h2>` +
+            `<span class="category-count">${t(items.length === 1 ? 'itemsOne' : 'itemsMany').replace('{n}', items.length)}</span>`;
+
+        const grid = document.createElement('div');
+        grid.className = 'shoe-grid';
+        items.forEach((shoe, i) => grid.appendChild(buildCard(shoe, startIdx + i)));
+
+        section.appendChild(header);
+        section.appendChild(grid);
+        return section;
+    }
+
+    function buildCard(shoe, idx) {
+        const card = document.createElement('div');
+        card.className = 'shoe-card';
+        card.style.animationDelay = `${Math.min(idx * 30, 300)}ms`;
+
+        const imgContainer = document.createElement('div');
+        imgContainer.className = 'shoe-image-container';
+        const img = document.createElement('img');
+        img.className = 'shoe-image';
+        attachImage(img, shoe.image, shoe.name);
+        imgContainer.appendChild(img);
+
+        // category badge on the photo — clear visual separation per card
+        const tag = document.createElement('span');
+        tag.className = 'card-tag cat-' + shoe.category;
+        tag.textContent = t(CATEGORY_TAG_KEY[shoe.category]);
+        imgContainer.appendChild(tag);
+
+        // Accessories have no meaningful size "-" — show total qty instead
+        const totalQty = shoe.sizes.reduce((n, s) => n + s.quantity, 0);
+        const sizesHtml = shoe.category === 'accessory'
+            ? (totalQty > 1
+                ? `<div class="sizes-container"><span class="size-badge">&times;${totalQty}</span></div>`
+                : '')
+            : `<div class="sizes-container">` +
+              `<span class="sizes-label">${t('availableSizes')}</span>` +
+              shoe.sizes.map(s =>
+                  `<span class="size-badge">${escapeHtml(s.size)}` +
+                  (s.quantity > 1 ? ` <span class="size-quantity">(${s.quantity})</span>` : '') +
+                  `</span>`
+              ).join('') +
+              `</div>`;
+
+        const info = document.createElement('div');
+        info.className = 'shoe-info';
+        info.innerHTML =
+            `<h2>${escapeHtml(shoe.name)}</h2>` +
+            `<p class="shoe-sku">${shoe.sku && shoe.sku !== '-' ? 'SKU: ' + escapeHtml(shoe.sku) : ''}</p>` +
+            `<div class="price">${escapeHtml(shoe.price)}</div>` +
+            sizesHtml;
+
+        card.appendChild(imgContainer);
+        card.appendChild(info);
+
+        imgContainer.addEventListener('click', () => openLightbox(shoe));
+        return card;
     }
 
     function escapeHtml(str) {
@@ -517,6 +621,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const sizeGroupTitles = els.sizePanel.querySelectorAll('.size-group h4');
         sizeGroupTitles[0].textContent = t('footwear');
         sizeGroupTitles[1].textContent = t('clothing');
+        sizeGroupTitles[2].textContent = t('accessories');
         els.noResults.querySelector('p').textContent = t('noResults');
         els.resetBtn.textContent = t('reset');
         if (!els.errorState.hidden) {

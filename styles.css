@@ -314,6 +314,83 @@ main { padding: 24px 0 48px; }
     gap: 18px;
 }
 
+/* ============ Category sections (Sneakers / Clothing / Accessories) ============ */
+
+.category-section { --cat: var(--accent); margin-bottom: 40px; }
+.category-section[data-category="clothing"] { --cat: #58754c; }
+.category-section[data-category="accessory"] { --cat: #50697d; }
+.category-section:last-child { margin-bottom: 0; }
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.category-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    background: var(--cat);
+    color: #fff;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--cat) 40%, transparent);
+}
+
+.category-icon svg { width: 19px; height: 19px; }
+
+.category-title {
+    font-size: 1.02rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+.category-count {
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--text-2);
+    background: var(--surface-2);
+    border-radius: 999px;
+    padding: 3px 10px;
+    white-space: nowrap;
+}
+
+.category-header::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--cat) 50%, transparent), transparent);
+}
+
+/* per-card category badge (photo corner) */
+
+.card-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--cat, var(--accent));
+    padding: 3px 9px;
+    border-radius: 999px;
+    box-shadow: 0 1px 3px rgba(59, 47, 33, .28);
+    pointer-events: none;
+}
+
+.cat-sneaker { --cat: var(--accent); }
+.cat-clothing { --cat: #58754c; }
+.cat-accessory { --cat: #50697d; }
+
 .shoe-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -612,6 +689,15 @@ main { padding: 24px 0 48px; }
     /* --- results bar --- */
     .results-bar { padding-bottom: 10px; }
     .results-count { width: 100%; margin-left: 0; }
+
+    /* --- category sections --- */
+    .category-section { margin-bottom: 26px; }
+    .category-header { gap: 8px; margin-bottom: 10px; }
+    .category-icon { width: 27px; height: 27px; border-radius: 8px; box-shadow: 0 1px 5px color-mix(in srgb, var(--cat) 40%, transparent); }
+    .category-icon svg { width: 15px; height: 15px; }
+    .category-title { font-size: .82rem; }
+    .category-count { font-size: .66rem; padding: 2px 8px; }
+    .card-tag { top: 6px; left: 6px; font-size: .54rem; padding: 2px 7px; }
 
     /* --- cards: tight 2-column grid --- */
     .shoe-grid, .skeleton-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
